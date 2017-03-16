@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>二级天气</title>
+		<script src="jquery-3.1.1.js"></script>
+	</head>
+	<style type="text/css">
+		div{
+			width: 300px;
+			height: 160px;
+			border: 1px solid;
+		}
+		p{
+			color: red;
+			font-size: 10px;
+		}
+	</style>
+	<body style="margin-left: 300px;">
+		<select id="One">
+			<option>--请选择--</option>
+		</select>
+		<select id="Two">
+			<option id="clear">--请选择--</option>
+		</select>
+		<input type="button" name="button" id="button" value="查询" />
+		<table border="1" cellspacing="0" style="text-align: center;">
+			
+		</table>
+	</body>
+	<script type="text/javascript">
+		$(function(){
+			//渲染城市二级联动
+			var dataList = null;
+			$.ajax({
+				type:"get",
+				url:"city.json",
+				async:true,
+				data:{},
+				dataType:"json",
+				success:function(data){//console.log(data);
+					dataList=data;
+					$.each(dataList.citylist, function(i,v) {
+						$("#One").append("<option>"+v.p+"</option>");
+                    });
+				}
+			});	
+			$("#One").change(function(){
+				$("#Two option").remove();
+				var _city = $(this).val();//获取到当前点击的省（值）console.log(_city);
+				$.each(dataList.citylist, function(i,v) { 
+					if(_city==v.p){//如果获取到的值等于渲染出来的值
+						$.each(v.c, function(i,val) {
+							$("#Two").append("<option>"+val.n+"</option>");
+						});
+					}
+				});
+			})
+			
+			
+
+			$("#button").click(function(){0
+				$("table").empty();
+				$("form").remove();
+				$(".xq").empty();
+                var _val = $("#Two").val(); //获取到第二级里的值
+                
+                
+
+                $.ajax({
+                	type:"get",
+                	url:"http://wthrcdn.etouch.cn/weather_mini?city="+_val,
+                	async:true,
+                	dataType:"jsonp",
+                	success:function(data){
+                		var dataList=data.data.forecast;   //所有的天气情况
+                		$("#button").after("<form style='font-size: 30px;'>"+_val+"最近五天的天气状况</form>");
+                		$("table").append("<tr><td>点击勾选</td><td>时间</td><td>天气类型</td></tr>");
+                		$.each(dataList,function(j,k){
+                		    $("table").append("<tr><td><input type='checkbox'/></td><td>"+k.date+"</td><td>"+k.type+"</td></tr>")
+//                          console.log(data);
+                        })
+                		
+                		$(document).on("click","tr",function(){  //on绑定事件
+                			  $.each($("table tr"), function() {//循环table下的所有tr
+                			  	    $(this).find(":checkbox").prop("checked",false);//当前所有的   查找  改变属性值false
+                			        $(this).css("background","");    //所有的清空颜色
+                			  });
+                			  $(this).find(":checkbox").prop("checked",true);//当前点击的   查找复选框     改变属性值为true
+                			  $(this).css("background","blue");       //选中时当前这一行变颜色
+//              			  console.log(dataList);
+                			  var ad=dataList[$(this).index()-1]; //$(this).index()当前的天气情况索引 
+                			  
+                			  $(".xq").html("<p>日期:"+ad.date+"</p><p>风力:"+ad.fengli+"</p><p>风向:"+ad.fengxiang+"</p><p>高温:"+ad.high+"</p><p>低温:"+ad.low+"</p><p>天气类型:"+ad.type+"</p>");
+                		})
+                	}
+                });
+			})
+		})
+	</script>
+</html>

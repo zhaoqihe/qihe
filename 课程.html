@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+
+    <script src="jquery-3.1.1.js"></script>
+</head>
+<body>
+<select name="" id="s1"></select>
+<select name="" id="s2"></select>
+</body>
+<script>
+    $.ajax({
+        url:"../Kec.json",
+        type:"get",
+        dateType:"json",
+        async:"true",
+        success:function(data){
+            $("body").append("<ul class='list'></ul>");
+            $.each(data,function(i,j){
+                var $str='<option>'+j.xueyuan+'</option>';
+                $("select:first").append($str);
+            });
+
+            $("select:first").change(function(){
+                $("select:last").children().remove();
+                var $v = $(this).val();
+                console.log($v);
+                $.each(data,function(i,v){
+                    if(v.xueyuan==$v){
+                        console.log(v.zhuanye);
+                        $.each(v.zhuanye,function(j,k){
+                            var $scr='<option>'+ k.a+'</option>';
+                            $("select:last").append($scr);
+                        })
+                    }
+                })
+            })
+        }
+    })
+</script>
+</html>
